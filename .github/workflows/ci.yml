@@ -1,0 +1,28 @@
+name: api-ci
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Build & test (auto-skips until pom.xml exists)
+        run: |
+          if [ -f pom.xml ]; then
+            mvn -B test
+            mvn -B -DskipTests package
+          else
+            echo "pom.xml not found yet — skipping Maven build (CI will enforce this once you add the project)"
+          fi
