@@ -16,7 +16,6 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-          cache: maven
 
       - name: Build & test (auto-skips until pom.xml exists)
         run: |
