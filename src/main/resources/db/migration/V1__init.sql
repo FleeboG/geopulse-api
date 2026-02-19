@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS app_user (
+  id            UUID PRIMARY KEY,
+  email         TEXT NOT NULL UNIQUE,
+  password_hash TEXT NOT NULL,
+  role          TEXT NOT NULL DEFAULT 'USER',
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
