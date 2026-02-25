@@ -15,6 +15,11 @@ spring:
   flyway:
     enabled: true
 
+security:
+  jwt:
+    secret: ${JWT_SECRET:dev-secret-change-me-dev-secret-change-me}
+    expiration-seconds: ${JWT_EXPIRATION_SECONDS:3600}
+
 management:
   endpoints:
     web:

@@ -53,4 +53,37 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.error").value("conflict"))
                 .andExpect(jsonPath("$.message").value("Email already registered"));
     }
+
+    @Test
+    void login_returns200_withToken_whenOk() throws Exception {
+        // Mock the service to return a token response
+        org.mockito.Mockito.when(authService.login(any(com.geopulse.geopulse_api.auth.dto.LoginRequest.class)))
+                .thenReturn(com.geopulse.geopulse_api.auth.dto.AuthResponse.bearer("fake.jwt.token"));
+
+        String json = "{\"email\":\"test@example.com\",\"password\":\"password123\"}";
+
+        mvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.accessToken").value("fake.jwt.token"))
+                .andExpect(jsonPath("$.tokenType").value("Bearer"));
+    }
+
+    @Test
+    void login_returns401_whenInvalidCredentials() throws Exception {
+        org.mockito.Mockito.when(authService.login(any(com.geopulse.geopulse_api.auth.dto.LoginRequest.class)))
+                .thenThrow(new IllegalArgumentException("Invalid credentials"));
+
+        String json = "{\"email\":\"test@example.com\",\"password\":\"wrongpass123\"}";
+
+        mvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.error").value("unauthorized"))
+                .andExpect(jsonPath("$.message").value("Invalid credentials"));
+    }
 }
