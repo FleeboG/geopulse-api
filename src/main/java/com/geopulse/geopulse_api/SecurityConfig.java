@@ -1,3 +1,4 @@
+
 package com.geopulse.geopulse_api;
 
 import jakarta.annotation.PostConstruct;
@@ -8,6 +9,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -45,11 +48,18 @@ public class SecurityConfig {
         // Public routes
         .requestMatchers(HttpMethod.GET, "/api/v1/ping", "/api/v1/ping/").permitAll()
 
+        // Auth routes (public)
+        .requestMatchers("/api/v1/auth/**").permitAll()
+
         // Everything else secured
         .anyRequest().authenticated()
       )
       .httpBasic(Customizer.withDefaults())
       .build();
   }
-}
 
+  @Bean
+  PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
+}
