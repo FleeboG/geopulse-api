@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ZoneService {
@@ -34,6 +35,35 @@ public class ZoneService {
                 .stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public ZoneResponse get(String userEmail, UUID id) {
+        ZoneEntity zone = findOwnedZone(userEmail, id);
+        return toResponse(zone);
+    }
+
+    @Transactional
+    public ZoneResponse update(String userEmail, UUID id, ZoneCreateRequest req) {
+        ZoneEntity zone = findOwnedZone(userEmail, id);
+
+        zone.setName(req.name().trim());
+        zone.setLatitude(req.latitude());
+        zone.setLongitude(req.longitude());
+        zone.setRadiusM(req.radiusM());
+
+        return toResponse(zoneRepository.save(zone));
+    }
+
+    @Transactional
+    public void delete(String userEmail, UUID id) {
+        ZoneEntity zone = findOwnedZone(userEmail, id);
+        zoneRepository.delete(zone);
+    }
+
+    private ZoneEntity findOwnedZone(String userEmail, UUID id) {
+        return zoneRepository.findByIdAndUserEmail(id, userEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Zone not found"));
     }
 
     private ZoneResponse toResponse(ZoneEntity zone) {
