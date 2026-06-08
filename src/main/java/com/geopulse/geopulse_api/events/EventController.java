@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/events")
@@ -29,5 +30,10 @@ public class EventController {
         return ResponseEntity
                 .created(URI.create("/api/v1/events/" + created.id()))
                 .body(created);
+    }
+
+    @GetMapping
+    public List<EventResponse> list(Authentication authentication) {
+        return eventService.list(authentication.getName());
     }
 }

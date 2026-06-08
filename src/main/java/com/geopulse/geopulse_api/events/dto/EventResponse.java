@@ -9,6 +9,7 @@ public record EventResponse(
     double latitude,
     double longitude,
     OffsetDateTime createdAt,
-    boolean insideAnyZone,
-    List<String> matchedZones
+    boolean isInside,
+    List<String> matchedZones,
+    String eventType
 ) {}

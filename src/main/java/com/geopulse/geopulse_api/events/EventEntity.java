@@ -24,6 +24,12 @@ public class EventEntity {
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
 
+    @Column(name = "event_type", nullable = false)
+        private String eventType;
+
+    @Column(name = "matched_zone_names", nullable = false)
+    private String matchedZoneNames;
+
     @PrePersist
     void prePersist() {
         if (createdAt == null) createdAt = OffsetDateTime.now();
@@ -43,4 +49,10 @@ public class EventEntity {
 
     public OffsetDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }
+
+    public String getEventType() { return eventType; }
+    public void setEventType(String eventType) { this.eventType = eventType; }
+    
+    public String getMatchedZoneNames() { return matchedZoneNames; }
+    public void setMatchedZoneNames(String matchedZoneNames) { this.matchedZoneNames = matchedZoneNames; }
 }

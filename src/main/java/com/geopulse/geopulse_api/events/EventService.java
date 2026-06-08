@@ -24,12 +24,10 @@ public class EventService {
 
     @Transactional
     public EventResponse ingest(String userEmail, EventCreateRequest req) {
-        EventEntity event = new EventEntity();
-        event.setUserEmail(userEmail);
-        event.setLatitude(req.latitude());
-        event.setLongitude(req.longitude());
-
-        EventEntity saved = eventRepository.save(event);
+        boolean wasInside = eventRepository.findFirstByUserEmailOrderByCreatedAtDesc(userEmail)
+                .map(EventEntity::getMatchedZoneNames)
+                .map(names -> names != null && !names.isBlank())
+                .orElse(false);
 
         List<String> matchedZones = zoneRepository.findByUserEmailOrderByCreatedAtDesc(userEmail)
                 .stream()
@@ -37,14 +35,60 @@ public class EventService {
                 .map(ZoneEntity::getName)
                 .toList();
 
+        boolean isInside = !matchedZones.isEmpty();
+        String eventType = determineEventType(wasInside, isInside);
+
+        EventEntity event = new EventEntity();
+        event.setUserEmail(userEmail);
+        event.setLatitude(req.latitude());
+        event.setLongitude(req.longitude());
+        event.setEventType(eventType);
+        event.setMatchedZoneNames(String.join(",", matchedZones));
+
+        EventEntity saved = eventRepository.save(event);
+
         return new EventResponse(
-                saved.getId(),
-                saved.getLatitude(),
-                saved.getLongitude(),
-                saved.getCreatedAt(),
-                !matchedZones.isEmpty(),
-                matchedZones
+            event.getId(),
+            event.getLatitude(),
+            event.getLongitude(),
+            event.getCreatedAt(),
+            isInside,
+            matchedZones,
+            saved.getEventType()
         );
+    }
+
+    @Transactional(readOnly = true)
+    public List<EventResponse> list(String userEmail) {
+        return eventRepository.findByUserEmailOrderByCreatedAtDesc(userEmail)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    private EventResponse toResponse(EventEntity event) {
+        List<String> matchedZones = event.getMatchedZoneNames() == null || event.getMatchedZoneNames().isBlank()
+                ? List.of()
+                : List.of(event.getMatchedZoneNames().split(","));
+
+        boolean isInside = !matchedZones.isEmpty();
+
+        return new EventResponse(
+                event.getId(),
+                event.getLatitude(),
+                event.getLongitude(),
+                event.getCreatedAt(),
+                isInside,
+                matchedZones,
+                event.getEventType()
+        );
+    }
+
+    private static String determineEventType(boolean wasInside, boolean isInside) {
+        if (!wasInside && isInside) return "ENTER";
+        if (wasInside && !isInside) return "EXIT";
+        if (isInside) return "INSIDE";
+        return "OUTSIDE";
     }
 
     private static double distanceMeters(double lat1, double lon1, double lat2, double lon2) {
