@@ -23,7 +23,7 @@ GeoPulse lets users register/login, create saved geofence zones, submit GPS even
 ```bash
 docker compose -f docker-compose.local.yml up --build
 
-# Repo structure
+## Repo structure
 src/main/java/com/geopulse/geopulse_api
 ├── auth
 ├── common
@@ -36,7 +36,7 @@ src/main/resources
 ├── application.yaml
 └── db/migration
 
-# Roadmap
+## Roadmap
 ' - Hi
 ' - Backend prototype: complete
 ' - Android app: next
