@@ -37,8 +37,9 @@ src/main/resources
 └── db/migration
 
 # Roadmap
-'-Backend prototype: complete
-'-Android app: next
-'-AWS deployment
-'-Monitoring/observability
-'-Production hardening
+' - Hi
+' - Backend prototype: complete
+' - Android app: next
+' - AWS deployment
+' - Monitoring/observability
+' - Production hardening
