@@ -6,6 +6,7 @@ import com.geopulse.geopulse_api.zones.ZoneEntity;
 import com.geopulse.geopulse_api.zones.ZoneRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 
@@ -59,8 +60,13 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public List<EventResponse> list(String userEmail) {
-        return eventRepository.findByUserEmailOrderByCreatedAtDesc(userEmail)
+    public List<EventResponse> list(String userEmail, int limit) {
+        int safeLimit = Math.max(1, Math.min(limit, 100));
+
+        return eventRepository.findByUserEmailOrderByCreatedAtDesc(
+                        userEmail,
+                        PageRequest.of(0, safeLimit)
+                )
                 .stream()
                 .map(this::toResponse)
                 .toList();

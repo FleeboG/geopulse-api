@@ -33,7 +33,10 @@ public class EventController {
     }
 
     @GetMapping
-    public List<EventResponse> list(Authentication authentication) {
-        return eventService.list(authentication.getName());
+    public List<EventResponse> list(
+            Authentication authentication,
+            @RequestParam(defaultValue = "50") int limit
+    ) {
+        return eventService.list(authentication.getName(), limit);
     }
 }
